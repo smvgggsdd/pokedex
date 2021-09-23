@@ -11,20 +11,81 @@ body {
   font-family: JetBrainsMono, Helvetica, sans-serif;
   box-sizing: border-box;
   position: relative;
+  min-height: 100vh;
 }
 
 .forms {
+  margin: 12px;
+  margin-left: 5%;
+  margin-right: 5%;
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background-color: lightskyblue;
+  border-radius: 10px;
+  padding: 20px;
+
+  
+}
+#Generation {
+  height: 2rem;
+  background-color: grey;
+  color: white;
+  padding-left: 20px;
+  border: none;
+  border-radius: 5px;
+  text-decoration: none;
+  cursor: pointer;
+  min-width: 30px;
+  position: relative;
+  display: inline-block;
 }
 
+#Generation-content {
+  display: none;
+  position: absolute;
+  z-index: 1;
+  border-radius: 5px;
+}
+
+.flexForm {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.searchText {
+  height: 35px;
+  width: 170px;
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+  font-family: inherit;
+  border: 1px solid grey;
+}
+.submit {
+  height: 40px;
+  width: 110px;
+  font-family: inherit;
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+  background-color: grey;
+  color: white;
+  border: 1px solid grey;
+
+}
+#Generation:hover #Generation-content {
+  display: block;
+}
 body::before {
   content: '';
-  position: fixed;
+  position: absolute;
   top: 0px;
   right: 0px;
   bottom: 0px;
   left: 0px;
   background-image: url(./pokeball.jpg);
+  background-size: 70vh;
   background-attachment: fixed;
   background-repeat: no-repeat;
   background-position: center;
@@ -55,13 +116,13 @@ footer {
   color: grey;
 }
 .icon {
-  height: 37px;
+  height: 32px;
   width: auto;
   margin-left: 25px;
 }
 
 .site-header {
-  font-size: 2.4rem;
+  font-size: 1.8rem;
   font-weight: light;
   margin-left: 8px;
   color:rgb(0, 0, 0)
@@ -70,6 +131,13 @@ footer {
   display: grid;
   grid-template-columns: repeat( auto-fit, minmax(225px, 1fr) );
   gap: 20px;
+}
+
+@media (min-width: 400px) {
+  .pokedex {
+    margin-left: 5%;
+    margin-right: 5%;
+  }
 }
 
 .pokecard {
@@ -85,6 +153,35 @@ footer {
   transform: translateY(-8px);
 }
 
+.singleView {
+  border: 1px solid rgb(204, 203, 203);
+  position: relative;
+  background-color: white;
+  border-radius: 10px;
+  transition: transform .2s;
+  box-shadow: 2px 2px 8px grey;
+  justify-self: center;
+}
+
+.singleName {
+  display: inline-block;
+}
+
+.singleTitle {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+.singleCard {
+  display: flex;
+  
+}
+
+.pokeSearch {
+  font-size: 1.3rem;
+  color: white;
+}
 .Avatar {
   /*background-color: beige;*/
   background-color: rgb(243, 243, 243);

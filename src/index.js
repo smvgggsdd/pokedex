@@ -59,9 +59,9 @@ function Name(props) {
 
 function GenerationSelect(props) {
   return (
-    <div>
-      <label htmlFor="Generation">Generation: </label>
-      <select  onChange={props.onChange} id="Generation" name="Generation">
+    <div className="genSelect">
+      <label className="pokeSearch" htmlFor="Generation">Generation Select:</label>
+      <select onChange={props.onChange} id="Generation" name="Generation">
         <option value="I">I</option>
         <option value="II">II</option>
         <option value="III">III</option>
@@ -77,13 +77,50 @@ function GenerationSelect(props) {
 
 function PokemonSearch(props) {
   return (
-    <form onSubmit={props.onSubmit}>
-      <label>
-        Search For Pokemon By Name or National Pokedex Number
-        <input type="text" name="PokemonSearch" value={props.value} onChange={props.onChange}/>
-      </label>
-      <input type="submit" value="Search" />
+    <form className="pokeSearch" onSubmit={props.onSubmit}>
+      <div className="flexForm">
+        <label>
+          Name or Pokedex Number:
+        </label>
+        <div className="searchForm">
+          <input className="searchText" type="text" name="PokemonSearch" value={props.value} onChange={props.onChange}/>
+          <input className="submit" type="submit" value="Search" />
+        </div>
+      </div>
     </form>
+    
+  )
+}
+
+function SingleTitle(props) {
+  return (
+    <div className="singleTitle">
+      <h1 className="singleName">{props.name}</h1>
+      <span className="singleNumber">{props.id}</span>
+    </div>
+  )
+}
+
+function SingleCard(props) {
+/*                  id={state.id} 
+  types={state.types} 
+                    src={state.image} 
+                    alt={state.id}
+                    name={state.name}
+  height={state.height}
+  weight={state.weight}
+  abilities={state.abilities}
+  */
+  return (
+    <div className="singleCard">
+      <Avatar src={props.src} alt={props.alt} />
+      <div className="advancedInfo">
+        <SingleTitle name={props.name} id={props.id}/>
+        {props.types.map(type =>
+        <Type type={type} />
+        )}
+      </div>
+    </div>
   )
 }
 
@@ -96,6 +133,11 @@ class Pokecard extends React.Component {
       url: this.props.url,
       image: "",
       types: [],
+      view: this.props.view,
+      height: "",
+      weight: "",
+      abilities: "",
+
     }
   }
 
@@ -104,21 +146,30 @@ class Pokecard extends React.Component {
       let id = localStorage.getItem(`${this.props.name}-id`);
       let sprite = localStorage.getItem(`${this.props.name}-sprite`);
       let typestring = localStorage.getItem(`${this.props.name}-types`);
+      let height = localStorage.getItem(`${this.props.name}-height`);
+      let weight = localStorage.getItem(`${this.props.name}-weight`);
+      let abilities = localStorage.getItem(`${this.props.name}-abilities`);
       const types = typestring.split(",");
       this.setState({
         id: id,
         image: sprite,
         types: types,
+        height: height,
+        weight: weight,
+        abilities: abilities,
       })
     } else {
-      console.log('hi');
       fetch(this.state.url)
         .then(response => response.json())
         .then(
           (result) => {
+            console.log(result);
             const id = formatNumber(result.id);
             const sprite = result.sprites.other["official-artwork"].front_default;
             const types = [];
+            const height = result.height;
+            const weight = result.weight;
+            const abilities = result.abilities[0].ability["name"];
             result.types.forEach((type) => {
               types.push(type.type.name);
             })
@@ -126,10 +177,16 @@ class Pokecard extends React.Component {
             localStorage.setItem(`${this.props.name}-id`, id);
             localStorage.setItem(`${this.props.name}-sprite`, sprite);
             localStorage.setItem(`${this.props.name}-types`, types);
+            localStorage.setItem(`${this.props.name}-height`, height);
+            localStorage.setItem(`${this.props.name}-weight`, weight);
+            localStorage.setItem(`${this.props.name}-abilities`, abilities);
             this.setState({
               id: id,
               image: sprite,
               types: types,
+              height: height,
+              weight: weight,
+              abilities: abilities,
             })
           }
         )
@@ -139,13 +196,31 @@ class Pokecard extends React.Component {
 
   render() {
     const state = this.state;
-    return (
-      <div className="pokecard">
-        <Title id={state.id} types={state.types}/>
-        <Avatar src={state.image} alt={state.id} />
-        <Name name={state.name} />
-      </div>
-    )
+    if (state.view === "default") {
+      return (
+        <div className="pokecard">
+          <Title id={state.id} types={state.types}/>
+          <Avatar src={state.image} alt={state.id} />
+          <Name name={state.name} />
+        </div>
+      )
+    } else {
+      return (
+        // height, weight, abilities,
+        <div className="singleView">
+          <SingleCard 
+            id={state.id} 
+            types={state.types} 
+            src={state.image} 
+            alt={state.id}
+            name={state.name}
+            height={state.height}
+            weight={state.weight}
+            abilities={state.abilities}
+          />
+        </div>
+      )
+    }
   }
 }
 
@@ -156,14 +231,14 @@ class Pokedex extends React.Component {
       items: [],
       limit: 151,
       offset: 0,
-      view: "default",
+      view: "default", /*default or single*/
       type: "",
       pokemon: "",
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
-
+  // initial fetch request for first gen pokemon
   componentDidMount() {
     fetch(`https://pokeapi.co/api/v2/pokemon?limit=${this.state.limit}&offset=${this.state.offset}`)
       .then(response => response.json())
@@ -186,6 +261,7 @@ class Pokedex extends React.Component {
       )
     
   }
+  // fetches new generation of pokemon
   componentDidUpdate(prevProps, prevState) {
     if (this.state.limit !== prevState.limit) {
       fetch(`https://pokeapi.co/api/v2/pokemon?limit=${this.state.limit}&offset=${this.state.offset}`)
@@ -215,6 +291,7 @@ class Pokedex extends React.Component {
       return;
     };
   }
+  // event handler for generation select
   handleChange(event) {
     const value = event.target.value;
     if (event.target.name==="Generation") {
@@ -228,11 +305,10 @@ class Pokedex extends React.Component {
         pokemon: event.target.value,
       })
     }
-    
   }
+
   handleSubmit(event) {
-    // so eventually this will lead to single pokemon view. instead of  
-    // using setstate, we're going to render advanced details of searched pokemon
+    // this fetches data for single pokemon view, and updates state accordingly
     event.preventDefault();
     const pokemon = this.state.pokemon.toLowerCase();
     fetch(`https://pokeapi.co/api/v2/pokemon/${pokemon}`)
@@ -246,7 +322,6 @@ class Pokedex extends React.Component {
     })
     .then(
       (result) => {
-        console.log(result);
         const newItems = [];
         const pokemon = {
           id: result.name,
@@ -256,6 +331,7 @@ class Pokedex extends React.Component {
           newItems.push(pokemon);
           this.setState({
             items: newItems,
+            view: "single",
           })
         }
         
@@ -275,7 +351,7 @@ class Pokedex extends React.Component {
         </div>
         <div className="pokedex">
           {pokemon.map(item => (
-            <Pokecard key={item.id} name={item.name} url={item.url} />
+            <Pokecard key={item.id} name={item.name} url={item.url} view={this.state.view} />
           ))}
         </div>
       </div>
